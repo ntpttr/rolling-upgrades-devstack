@@ -1,0 +1,18 @@
+[[local|localrc]]
+ADMIN_PASSWORD=password
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=password
+
+HOST_IP={{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
+
+CINDER_ENABLED_BACKENDS=ceph
+CINDER_BRANCH=stable/mitaka
+
+enable_service zookeeper
+disable_service c-sch
+disable_service c-vol
+disable_service c-bak
+disable_service n-cpu
+disable_service q-agt

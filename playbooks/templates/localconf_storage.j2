@@ -1,0 +1,27 @@
+[[local|localrc]]
+ADMIN_PASSWORD=password
+DATABASE_PASSWORD=$ADMIN_PASSWORD
+RABBIT_PASSWORD=$ADMIN_PASSWORD
+SERVICE_PASSWORD=$ADMIN_PASSWORD
+SERVICE_TOKEN=password
+SERVICE_HOST={{ hostvars[groups['controller'][0]]['ansible_eth0']['ipv4']['address'] }}
+DATABASE_TYPE=mysql
+MYSQL_HOST=$SERVICE_HOST
+RABBIT_HOST=$SERVICE_HOST
+GLANCE_HOSTPORT=$SERVICE_HOST:9292
+ENABLED_SERVICES=ceph,cinder,c-sch,c-vol,c-bak
+MULTI_HOST=1
+HOST_IP={{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
+
+CEPH_LOOPBACK_DISK_SIZE=10G
+CEPH_CONF=/etc/ceph/ceph.conf
+CEPH_REPLICAS=1
+
+CINDER_BRANCH=stable/mitaka
+CINDER_DRIVER=ceph
+CINDER_CEPH_USER=cindy
+CINDER_CEPH_POOL=volumeuh
+CINDER_CEPH_UUID=6d52eb95-12f3-47e3-9eb9-0c1fe4142426
+CINDER_BAK_CEPH_POOL=backeups
+CINDER_BAK_CEPH_USER=cind-backeups
+CINDER_ENABLED_BACKENDS=ceph

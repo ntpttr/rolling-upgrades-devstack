@@ -1,0 +1,12 @@
+---
+
+- name: Insert local.conf
+  template: >
+      src=templates/{{ localconf_filename }}
+      dest='/opt/stack/devstack/local.conf'
+      owner='stack'
+      group='stack'
+
+- name: Run stack.sh
+  shell: >
+      /opt/stack/devstack/stack.sh
