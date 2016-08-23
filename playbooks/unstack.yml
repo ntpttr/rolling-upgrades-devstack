@@ -4,16 +4,16 @@
   sudo: yes
   sudo_user: 'stack'
   tasks:
-  - include: tasks/setup_devstack.yml
+  - include: tasks/unstack_devstack.yml
 
 - hosts: compute
   sudo: yes
   sudo_user: 'stack'
   tasks:
-  - include: tasks/setup_devstack.yml
+  - include: tasks/unstack_devstack.yml
 
 - hosts: storage
   sudo: yes
   sudo_user: 'stack'
   tasks:
-  - include: tasks/setup_devstack.yml
+  - include: tasks/unstack_devstack.yml

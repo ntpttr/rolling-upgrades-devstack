@@ -6,6 +6,7 @@ SERVICE_PASSWORD=$ADMIN_PASSWORD
 SERVICE_TOKEN=password
 
 HOST_IP={{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
+MULTI_HOST=1
 
 CINDER_ENABLED_BACKENDS=ceph
 CINDER_BRANCH=stable/mitaka
