@@ -1,19 +1,28 @@
 ---
 
 - hosts: control
-  sudo: yes
-  sudo_user: 'stack'
+  become: yes
+  tasks:
+  - include: tasks/setup_base.yml
+
+- hosts: control
   tasks:
   - include: tasks/setup_devstack.yml
 
 - hosts: compute
-  sudo: yes
-  sudo_user: 'stack'
+  become: yes
+  tasks:
+  - include: tasks/setup_base.yml
+
+- hosts: compute
   tasks:
   - include: tasks/setup_devstack.yml
 
-- hosts: storage
-  sudo: yes
-  sudo_user: 'stack'
+- hosts: block
+  become: yes
+  tasks:
+  - include: tasks/setup_base.yml
+
+- hosts: block
   tasks:
   - include: tasks/setup_devstack.yml

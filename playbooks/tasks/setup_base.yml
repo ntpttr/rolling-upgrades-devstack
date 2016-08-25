@@ -1,11 +1,10 @@
 ---
 
-- name: Ensure stack user exists
-  user: >
-      name='stack'
-      state=present
-      shell=/bin/bash
-      groups='sudo'
+- name: Add backport repository
+  apt_repository: repo='deb http://mirrors.kernel.org/ubuntu trusty-backports main universe' state=present
+
+- name: Update packages
+  apt: update_cache=yes
 
 - name: Install packages
   apt: pkg={{ item }} state=present
@@ -14,3 +13,4 @@
     - python-argparse
     - python-pip
     - python-dev
+    - liberasurecode-dev

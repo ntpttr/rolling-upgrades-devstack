@@ -2,4 +2,4 @@
 
 - name: Run unstack.sh
   shell: >
-      /opt/stack/devstack/unstack.sh
+      /home/ubuntu/devstack/unstack.sh

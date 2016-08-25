@@ -1,19 +1,17 @@
 ---
 
 - hosts: control
-  sudo: yes
-  sudo_user: 'stack'
   tasks:
   - include: tasks/unstack_devstack.yml
 
 - hosts: compute
-  sudo: yes
-  sudo_user: 'stack'
   tasks:
   - include: tasks/unstack_devstack.yml
 
-- hosts: storage
-  sudo: yes
-  sudo_user: 'stack'
+- hosts: object
+  tasks:
+  - include: tasks/unstack_devstack.yml
+
+- hosts: block
   tasks:
   - include: tasks/unstack_devstack.yml

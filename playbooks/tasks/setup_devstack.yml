@@ -1,12 +1,17 @@
 ---
 
+- name: Clone devstack
+  git: repo=https://github.com/openstack-dev/devstack
+       dest=/home/ubuntu/devstack
+       version=stable/mitaka
+
 - name: Insert local.conf
   template: >
       src=templates/{{ localconf_filename }}
-      dest='/opt/stack/devstack/local.conf'
-      owner='stack'
-      group='stack'
+      dest='/home/ubuntu/devstack/local.conf'
+      owner='ubuntu'
+      group='ubuntu'
 
 - name: Run stack.sh
   shell: >
-      /opt/stack/devstack/stack.sh
+      /home/ubuntu/devstack/stack.sh
