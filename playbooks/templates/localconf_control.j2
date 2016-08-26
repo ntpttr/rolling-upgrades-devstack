@@ -8,26 +8,11 @@ SERVICE_TOKEN=password
 HOST_IP={{ hostvars[inventory_hostname]['ansible_eth0']['ipv4']['address'] }}
 MULTI_HOST=1
 
-#Swift Requirements
+enable_service q-svc q-dhcp q-meta q-agt q-l3
+
 enable_service s-proxy s-object s-container s-account
 SWIFT_REPLICAS=1
 SWIFT_HASH=password
-
-enable_service q-svc q-dhcp q-meta q-agt q-l3
-
-## Neutron options
-Q_USE_SECGROUP=True
-FLOATING_RANGE="192.168.0.0/24"
-FIXED_RANGE="10.0.0.0/24"
-Q_FLOATING_ALLOCATION_POOL=start=192.168.0.250,end=192.168.0.254
-PUBLIC_NETWORK_GATEWAY="192.168.0.1"
-PUBLIC_INTERFACE=eth0
-
-# Open vSwitch provider networking configuration
-Q_USE_PROVIDERNET_FOR_PUBLIC=True
-OVS_PHYSICAL_BRIDGE=br-ex
-PUBLIC_BRIDGE=br-ex
-OVS_BRIDGE_MAPPINGS=public:br-ex
 
 enable_service zookeeper
 disable_service c-bak c-vol n-cpu n-net
