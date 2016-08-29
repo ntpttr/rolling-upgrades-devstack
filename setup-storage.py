@@ -5,6 +5,9 @@ import sys
 from time import sleep
 
 from cinderclient import client as blockclient
+from keystoneauth1.identity import v2
+from keystoneauth1 import session
+from neutronclient.v2_0 import client as networkclient
 from novaclient import client as computeclient
 
 def create_vol(cinder):
@@ -33,19 +36,29 @@ def create_vm(nova):
     return vm
 
 def attach_volume(nova, cinder, vol, vm):
-    nova.volumes.create_server_volume(vm.id, vol.id)
+    nova.volumes.create_server_volume(vm.id, vol.id, device='/dev/vdz')
     while vol.status != 'in-use':
         vol = cinder.volumes.get(vol.id)
-        print(vol.status)
+        print("Attaching volume...")
         sleep(1)
 
+def assign_vm_ip(neutron, vm):
+    networks = neutron.list_networks(name='public')
+    network_id = networks['networks'][0]['id']
+    body = { 'floatingip': { 'floating_network_id': network_id, 'port_id': vm.interface_list()[0].port_id } }
+    ip = neutron.create_floatingip(body=body)
+
 def main(args):
+    auth = v2.Password(auth_url=args.authurl, username=args.username, password=args.password, tenant_name=args.tenant)
+    sess = session.Session(auth=auth)
     cinder = blockclient.Client('2', args.username, args.password, args.tenant, args.authurl)
     nova = computeclient.Client('2', args.username, args.password, args.tenant, args.authurl)
+    neutron = networkclient.Client(session=sess)
 
     vol = create_vol(cinder)
     vm = create_vm(nova)
     attach_volume(nova, cinder, vol, vm)
+    assign_vm_ip(neutron, vm)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -57,5 +70,8 @@ if __name__ == '__main__':
                         required=True, help="OpenStack tenant name")
     parser.add_argument('--authurl', metavar='STRING',
                         required=True, help="OpenStack auth url")
+    parser.add_argument('--neutronendpoint', metavar='STRING',
+                        required=True, help="Neutron endpoint")
     args = parser.parse_args()
     sys.exit(main(args))
+
