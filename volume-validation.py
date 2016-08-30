@@ -13,7 +13,7 @@ def check_data(ssh):
             sleep(randint(0, 10))
 
             # Test read from volume
-            stdin, stdout, stderr = ssh.exec_command("sudo md5sum /data/test.txt")
+            stdin, stdout, stderr = ssh.exec_command("sudo md5sum /data/test_read.txt")
             new_hash = stdout.readlines()
             if prev_hash != new_hash:
                 print("Data on volume has been corrupted. md5sum was %s but "
