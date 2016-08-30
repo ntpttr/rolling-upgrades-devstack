@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import paramiko
 import sys
 from time import sleep
 
@@ -36,17 +37,44 @@ def create_vm(nova):
     return vm
 
 def attach_volume(nova, cinder, vol, vm):
-    nova.volumes.create_server_volume(vm.id, vol.id, device='/dev/vdz')
+    nova.volumes.create_server_volume(vm.id, vol.id)
     while vol.status != 'in-use':
         vol = cinder.volumes.get(vol.id)
         print("Attaching volume...")
         sleep(1)
+    vm = nova.servers.get(vm.id)
+    return vm, vol
 
-def assign_vm_ip(neutron, vm):
+def assign_vm_ip(neutron, nova, vm):
     networks = neutron.list_networks(name='public')
     network_id = networks['networks'][0]['id']
     body = { 'floatingip': { 'floating_network_id': network_id, 'port_id': vm.interface_list()[0].port_id } }
-    ip = neutron.create_floatingip(body=body)
+    vm_addresses = vm.addresses
+    ip = neutron.create_floatingip(body=body)['floatingip']['floating_ip_address']
+    while vm.addresses == vm_addresses:
+        vm = nova.servers.get(vm.id)
+        print("Creating floating IP...")
+        sleep(3)
+    return vm, ip
+
+def set_up_device(ssh):
+    print("Formatting device...")
+    ssh.exec_command("(echo o; echo n; echo p; echo 1; echo ; echo ; echo w) | sudo /sbin/fdisk /dev/vdb")
+    sleep(0.5)
+    ssh.exec_command("sudo /usr/sbin/mkfs.ext4 /dev/vdb1")
+    sleep(0.5)
+    ssh.exec_command("sudo mkdir /data")
+    sleep(0.5)
+    ssh.exec_command("sudo mount /dev/vdb1 /data")
+    sleep(0.5)
+    ssh.exec_command("sudo dd if=/dev/zero of=/data/test.txt bs=1M count=100")
+
+def backup_volume(cinder, vol_id):
+    bak = cinder.backups.create(vol_id, name='test-bak', force=True)
+    while bak.status != 'available':
+        bak = cinder.backups.get(bak.id)
+        print("Backing up volume...")
+        sleep(5)
 
 def main(args):
     auth = v2.Password(auth_url=args.authurl, username=args.username, password=args.password, tenant_name=args.tenant)
@@ -57,8 +85,19 @@ def main(args):
 
     vol = create_vol(cinder)
     vm = create_vm(nova)
-    attach_volume(nova, cinder, vol, vm)
-    assign_vm_ip(neutron, vm)
+    vm, vol = attach_volume(nova, cinder, vol, vm)
+    vm, ip = assign_vm_ip(neutron, nova, vm)
+
+    sleep(20)
+
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(
+        paramiko.AutoAddPolicy())
+    ssh.connect(ip, username='cirros',  password='cubswin:)')
+
+    set_up_device(ssh)
+
+    backup_volume(cinder, vol.id)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -70,8 +109,5 @@ if __name__ == '__main__':
                         required=True, help="OpenStack tenant name")
     parser.add_argument('--authurl', metavar='STRING',
                         required=True, help="OpenStack auth url")
-    parser.add_argument('--neutronendpoint', metavar='STRING',
-                        required=True, help="Neutron endpoint")
     args = parser.parse_args()
     sys.exit(main(args))
-
