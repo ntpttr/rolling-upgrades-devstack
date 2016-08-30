@@ -6,7 +6,7 @@ from time import sleep
 
 def check_data(ssh):
     count = 0
-    stdin, stdout, stderr = ssh.exec_command("sudo md5sum /data/test.txt")
+    stdin, stdout, stderr = ssh.exec_command("sudo md5sum /data/test_read.txt")
     prev_hash = stdout.readlines()
     try:
         while True:

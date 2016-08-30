@@ -67,7 +67,7 @@ def set_up_device(ssh):
     sleep(0.5)
     ssh.exec_command("sudo mount /dev/vdb1 /data")
     sleep(0.5)
-    ssh.exec_command("sudo dd if=/dev/zero of=/data/test.txt bs=1M count=100")
+    ssh.exec_command("sudo dd if=/dev/zero of=/data/test_read.txt bs=1M count=100")
 
 def backup_volume(cinder, vol_id):
     bak = cinder.backups.create(vol_id, name='test-bak', force=True)
