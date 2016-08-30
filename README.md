@@ -4,7 +4,13 @@ This repo provides ansible playbooks to deploy devstack configured specifically 
 To deploy, first add the IPs of your target hosts to the inventory file, then run 
 'ansible-playbook -i inventory playbooks/devstack_install.yml' to install the required packages and start up devstack on each node.
 
-Once the cloud is up and running, the following process can be used to validate the rolling upgrades process:
+Before performing the rolling upgrade, some setup is required for validating data consistency of volumes and backups, as well as testing read/write during the upgrade.
+
+To set up a volume, attach it to an instance, write to it, and back it up, run 'python setup-storage.py'. This script will expect you to pass in arguments for authentication, including user name, password, tenant name and auth url.
+
+After this script finishes, start up the two validation scripts (in seperate tmux or screen sessions). These will be left running for the duration of the upgrade, and will test reads/writes to the volume as well as the consistency of the backup.
+
+Once the cloud is up and running and the setup scripts have been run, the following process can be used to validate the rolling upgrades process:
 
 1. On each node running any cinder service, check out the master branch in /opt/stack/cinder
 2. On the control node, run 'cinder-manage db sync' to migrate the database to master.
@@ -14,9 +20,3 @@ Once the cloud is up and running, the following process can be used to validate 
 6. For each node running c-sch, restart c-sch on that node, repeating step 3 after each restart.
 7. Repeat step 6 with c-vol.
 8. Repeat step 6 with c-bak.
-
-NOTE: Tempest will run and then clean everything up at the end, meaning that just these steps won't validate data consistency throughout
-the upgrade process. For a complete test, I'm also working on scripts that will create a volume and a backup, attach the volume to a running
-instance and validate that data on the volume stays consistent and reads/writes still work at every phase of the upgrade. Until those
-are finished, this can be done manually. In that case, you could crate a volume, attach it to a VM, write some data to it and back it up
-and after each service upgrades validate that all the data was maintained and reads and writes are still successful.
