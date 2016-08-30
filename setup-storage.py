@@ -85,10 +85,8 @@ def main(args):
 
     vol = create_vol(cinder)
     vm = create_vm(nova)
-    vm, vol = attach_volume(nova, cinder, vol, vm)
     vm, ip = assign_vm_ip(neutron, nova, vm)
-
-    sleep(10)
+    vm, vol = attach_volume(nova, cinder, vol, vm)
 
     ssh = paramiko.SSHClient()
     ssh.set_missing_host_key_policy(
